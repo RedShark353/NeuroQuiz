@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>NeuroQuiz</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="css/QuizStyles.css">
+</head>
+<body>
+
+	<header id="main-header">
+		<div class="container">
+			<section id="headerTitle">
+				<h1>NeuroQuiz</h1>
+			</section>
+
+			<section id="settings">
+				<button class="dropbtn" onclick="dropDown()"></button>
+				<div id="dropDown" class="dropdown-content">
+				    <div id="totalQuestions">
+				    	<p id="notice">Eφαρμόζονται από την επόμενη ερώτηση</p>
+				    	<p>Αριθμός Ερωτήσεων</p>
+				    	<button class="minus_btn" onclick="setQuestions(-1)">-</button>
+				    	<p id="qNumber">5</p>
+				    	<button class="plus_btn" onclick="setQuestions(1)">+</button>
+				    </div>
+				    <div id="totalAnswers">
+				    	<p>Αριθμός Απαντήσεων</p>
+				    	<button class="minus_btn" onclick="setAnswers(-1)">-</button>
+				    	<p id="aNumber">4</p>
+				    	<button class="plus_btn" onclick="setAnswers(1)">+</button>
+				    </div>
+			  </div>
+			</section>
+		</div>
+	</header>
+
+	<section id="showcase">
+		<div class="container">
+			<img src="images/Brain.jpg">
+		</div>
+	</section>
+
+	<div class="container">
+		<section id="main-left">
+			<div id="question">
+				<h3 id="questionNumber"></h3>
+				<h3 id="questionText"></h3>
+				<button id="newQuiz" onclick="newQuiz()">Νέο Quiz</button>
+			</div>
+
+			<div id="answers">
+				<ul id="answerOptions"></ul>
+			</div>
+
+			<div id="answerEvaluation">
+				<p id="result"></p>
+				<button id="verify" onclick="verify()">Επαλήθευση</button>
+				<button id="next" onclick="nextQuestion()">Επόμενο</button>
+			</div>
+		</section>
+
+		<section id="main-right">
+				<p id="score">0</p>
+				<h3 id="scoreText">Score</h3>
+		</section>
+	</div>
+
+	<footer id="main-footer">
+		<p>NeuroQuiz | 2021</p>
+	</footer>
+
+	<script type="text/javascript">
+
+		//CONSTANTS
+		var OPTIONS = 4;
+		var TOTAL_QUESTIONS = 5;
+
+		//DATA
+		var cn_I = new Map([
+			["#", "I"],
+			["name", "Οσφρητικό"],
+			["category", "Αισθητικό"],
+			["emerging", "Δεν αναδύεται"],
+			["nuclei", ["Παροσφρητική άλως", "Περιαμυγδαλοειδής φλοιός"]],
+			["function", "Μετάδοση της αίσθησης της όσφρησης"]
+			]);
+
+		var cn_II = new Map([
+			["#", "II"],
+			["name", "Οπτικό"],
+			["category", "Αισθητικό"],
+			["emerging", "Δεν αναδύεται"],
+			["nuclei", ["Πυρήνας έξω γονατώδους σώματος"]],
+			["function", "Μετάδοση των οπτικών πληροφοριών"]
+			]);
+
+		var cn_III = new Map([
+			["#", "III"],
+			["name", "Κοινό κινητικό"],
+			["category", "Κινητικό (κυρίως)"],
+			["emerging", "Μεσοσκελιαίος βόθρος (μεσεγκέφαλος)"],
+			["nuclei", ["Πυρήνας κοινού κινητικού", "Πυρήνας Edinger-Westphal"]],
+			["function", "Νεύρωση ανελκτήρα άνω βλεφάρου, άνω, έσω, κάτω ορθού και κάτω λοξού μυών του οφθαλμικού βολβού"]
+			]);
+
+		var cn_IV = new Map([
+			["#", "IV"],
+			["name", "Τροχιλιακό"],
+			["category", "Κινητικό"],
+			["emerging", "Ραχιαία επιφάνεια στελέχους (μεσεγκέφαλος)"],
+			["nuclei", ["Πυρήνας τροχιλιακού νεύρου"]],
+			["function", "Νεύρωση άνω λοξού μυός του οφθαλμικού βολβού"]
+			]);
+
+		var cn_V = new Map([
+			["#", "V"],
+			["name", "Τρίδυμο"],
+			["category", "Μικτό"],
+			["emerging", "Πλάγια επιφάνεια γέφυρας"],
+			["nuclei", ["Κύριος αισθητικός πυρήνας του τριδύμου", "Νωτιαίος πυρήνας του τριδύμου", "Μεσεγκεφαλικός πυρήνας του τριδύμου", "Κινητικός πυρήνας του τριδύμου"]],
+			["function", "Αισθητική νεύρωση προσώπου και κινητική νεύρωση μυών μάσησης"]
+			]);
+
+		var cn_VI = new Map([
+			["#", "VI"],
+			["name", "Απαγωγό"],
+			["category", "Κινητικό"],
+			["emerging", "Οπίσθια γεφυρική αύλακα"],
+			["nuclei", ["Πυρήνας απαγωγού νεύρου"]],
+			["function", "Νεύρωση έξω ορθού μυός του οφθαλμικού βολβού"]
+			]);
+
+		var cn_VII = new Map([
+			["#", "VII"],
+			["name", "Προσωπικό"],
+			["category", "Μικτό"],
+			["emerging", "Υπερελαϊκό βοθρίο (γέφυρα)"],
+			["nuclei", ["Κινητικός πυρήνας προσωπικού", "Άνω σιαλικός πυρήνας", "Πυρήνας της μονήρους δεσμίδας"]],
+			["function", "Νεύρωση των μιμικών μυών του προσώπου, αίσθηση της γεύσης από τα πρόσθια 2/3 της γλώσσας, εκκριτική νεύρωση των σιελογόνων αδένων εκτός της παρωτίδας και του δακρυικού αδένα"]
+			]);
+
+		var cn_VIII = new Map([
+			["#", "VIΙΙ"],
+			["name", "Στατικοακουστικό"],
+			["category", "Αισθητικό"],
+			["emerging", "Υπερελαϊκό βοθρίο (γέφυρα)"],
+			["nuclei", ["Κοχλιακοί πυρήνες", "Αιθουσαίοι πυρήνες"]],
+			["function", "Αίσθηση της ακοής και της θέσης στο χώρο (ισορροπία, περιστροφή)"]
+			]);
+
+		var cn_IX = new Map([
+			["#", "IΧ"],
+			["name", "Γλωσσοφαρυγγικό"],
+			["category", "Μικτό"],
+			["emerging", "Οπίσθια παρελαϊκή αύλακα (προμήκης)"],
+			["nuclei", ["Μικτός ή κοιλιακός πυρήνας", "Κάτω σιαλικός πυρήνας", "Πυρήνας της μονήρους δεσμίδας"]],
+			["function", "Αίσθηση της γεύσης από το οπίσθιο 1/3 της γλώσσας, εκκριτική νεύρωση παρωτίδας, νεύρωση βελονοφαρυγγικού μυ"]
+			]);
+
+		var cn_X = new Map([
+			["#", "Χ"],
+			["name", "Πνευμονογαστρικό"],
+			["category", "Μικτό"],
+			["emerging", "Οπίσθια παρελαϊκή αύλακα (προμήκης)"],
+			["nuclei", ["Μικτός ή κοιλιακός πυρήνας", "Ραχιαίος πυρήνας του πνευμονογαστρικού", "Πυρήνας της μονήρους δεσμίδας"]],
+			["function", "Νεύρωση των μυών του λάρυγγα και του φάρυγγα, παρασυμπαθητικήνεύρωση των θωρακικών και κοιλιακών σπλάγχνων μέχρι τη σπληνική καμπή, αίσθηση της γεύσης από την επιγλωττίδα. Εξυπηρέτηση της κατάποσης και της φώνησης."]
+			]);
+
+		var cn_XI = new Map([
+			["#", "ΧI"],
+			["name", "Παραπληρωματικό"],
+			["category", "Κινητικό"],
+			["emerging", "Οπίσθια παρελαϊκή αύλακα"],
+			["nuclei", ["Μικτός ή κοιλιακός πυρήνας (προμηκική μοίρα)", "Νωτιαίος πυρήνας του παραπληρωματικού (νωτιαία μοίρα)"]],
+			["function", "Νεύρωση του στερνοκλειδομαστοειδούς και του τραπεζοειδούς μυών"]
+			]);
+
+		var cn_XII = new Map([
+			["#", "ΧΙΙ"],
+			["name", "Υπογλώσσιο"],
+			["category", "Κινητικό"],
+			["emerging", "Πρόσθια παρελαϊκή αύλακα (προμήκης)"],
+			["nuclei", ["Πυρήνας του υπογλωσσίου"]],
+			["function", "Νεύρωση μυών της γλώσσας και των κάτωθεν του υοειδούς μυών"]
+			]);
+
+		var cranial_nerves = [cn_I, cn_II, cn_III, cn_IV, cn_V, cn_VI, cn_VII, cn_VIII, cn_IX, cn_X, cn_XI, cn_XII];
+
+		var cn_questions_text = new Map([
+			["#", "Ποιός αριθμός αντιστοιχεί στο "],
+			["name", "Πως λέγεται το νεύρο με αριθμό "],
+			["category", "Τι είδους είναι το "],
+			["emerging", "Από που αναδύεται το "],
+			["nuclei", "Ποιός πυρήνας ανήκει στο "],
+			["function", "Ποιά λειτουργία αντιστοιχεί στο "]
+			])
+
+		var cn_questions = ["#", "name", "category", "emerging", "nuclei", "function"];
+
+		var question_categories = [
+			[cn_questions, cranial_nerves]
+			];
+
+		var answerChoices = [];
+
+		var previousQuestions = new Set()
+
+		var correctAnswerText;
+
+		var pressedCount = 0;
+
+		var score = 0;
+
+		var maxScore = 0;
+
+		var answerCount = 0;
+
+		var questionCount = 0;
+
+		var chosenBefore = new Set();
+
+		generateQuestion()
+
+		function setQuestions(change) {
+			if (TOTAL_QUESTIONS + change > questionCount) {
+				TOTAL_QUESTIONS += change;
+				document.getElementById('qNumber').innerHTML = TOTAL_QUESTIONS;
+			}
+
+			return TOTAL_QUESTIONS;
+		}
+
+		function setAnswers(change) {
+			if (OPTIONS > 2 || OPTIONS == 2 && change > 0) {
+				OPTIONS += change;
+				document.getElementById('aNumber').innerHTML = OPTIONS;
+			}
+
+			return OPTIONS;
+		}
+
+		/*function setQuestions(change) {
+			if (TOTAL_QUESTIONS > 1 || TOTAL_QUESTIONS == 1 && change > 0) {
+				TOTAL_QUESTIONS += change;
+				document.getElementById('qNumber').innerHTML = TOTAL_QUESTIONS;
+			
+
+				if (change !== 0) {
+					questionCount --;
+					nextQuestion();
+				}
+			}
+
+			return TOTAL_QUESTIONS;
+		}
+
+		function setAnswers(change) {
+			if (OPTIONS > 1 || OPTIONS == 1 && change > 0) {
+				OPTIONS += change;
+				document.getElementById('aNumber').innerHTML = OPTIONS;
+			
+
+				if (change !== 0) {
+					questionCount --;
+					nextQuestion();
+				}
+			}
+
+			return OPTIONS;
+		}*/
+
+
+		function dropDown() {
+			document.getElementById('dropDown').classList.toggle("show");
+		}
+
+		// Close the dropdown if the user clicks outside of it
+		window.onclick = function(event) {
+		  if (!event.target.matches('.dropbtn') && !event.target.matches('.plus_btn') && !event.target.matches('.minus_btn')) {
+		    var dropdowns = document.getElementsByClassName("dropdown-content");
+		    var i;
+		    for (i = 0; i < dropdowns.length; i++) {
+		      var openDropdown = dropdowns[i];
+		      if (openDropdown.classList.contains('show')) {
+		        openDropdown.classList.remove('show');
+		      }
+		    }
+		  }
+		}
+
+		function newQuiz(){
+			location.href = "quiz.html";
+		}
+
+		function endScreen(){
+			document.getElementById('question').style.textAlign = "center";
+			document.getElementById('questionText').innerHTML = "Συγχαρητήρια ολοκλήρωσες το Quiz !";
+			document.getElementById('score').innerHTML = score + "/" + maxScore;
+			document.getElementById('scoreText').innerHTML = "Final Score";
+			document.getElementById('questionNumber').innerHTML = null;
+			document.getElementById('verify').style.display = "none";
+			document.getElementById('newQuiz').style.display = "inline";
+			document.querySelector("div[class='container'] img").style.width = "40%";
+		}
+
+		function removeAllChildNodes(parent) {
+		    while (parent.firstChild) {
+		        parent.removeChild(parent.firstChild);
+		    }
+		}
+
+		function nextQuestion(){
+			
+			//Reset for next question
+			removeAllChildNodes(answerOptions);
+			answerChoices.splice(0, answerChoices.length);
+			chosenBefore.clear();
+			document.getElementById('verify').style.display = "inline"
+			document.getElementById('next').style.display = "none"
+			document.getElementById('result').innerHTML = null
+			pressedCount = 0;
+			answerCount = 0;
+
+			if (questionCount == TOTAL_QUESTIONS){
+				endScreen();
+			}else{
+				generateQuestion();
+			}
+		}
+
+		function verify(){
+
+			let radioButtonList = document.querySelectorAll('input[name="option"]');
+
+			for (rb of radioButtonList){
+				if (rb.checked){
+					if (!chosenBefore.has(rb.value)) {
+						pressedCount ++ 
+					}else{
+						break;
+					}
+
+					if (rb.value == correctAnswerText){
+						document.getElementById('result').innerHTML = "Σωστά!";
+						document.getElementById('result').style.color = "green";
+						document.getElementById('verify').style.display = "none";
+						document.getElementById('next').style.display = "inline";
+
+						//Calculate score
+						maxScore = maxScore + answerCount - 1;
+
+						var scoreChange = answerCount - 1 - pressedCount + 1
+						if (scoreChange > 0){
+							score = score + scoreChange;
+							document.getElementById('score').innerHTML = score
+						}
+
+					}else{
+						document.getElementById('result').innerHTML = "Οχι... Προσπάθησε ξανά";
+						document.getElementById('result').style.color = "red";
+						chosenBefore.add(rb.value);
+						console.log(chosenBefore);
+					}
+				}
+			}
+		}
+
+		function shuffle(arr){
+			for (var i = arr.length - 1; i > 0; i--) {  
+    
+		       // Generate random number  
+		       var j = Math.floor(Math.random() * (i + 1)); 
+		                    
+		       var temp = arr[i]; 
+		       arr[i] = arr[j]; 
+		       arr[j] = temp; 
+		   	} 
+        
+   			return arr; 
+		}
+
+		function showAnswers(answerArray) {
+			for (answer of answerArray){
+		    	let option = document.createElement('input');
+		    	option.type = 'radio';
+  				option.name = 'option';
+  				option.value = answer;
+
+  				let textHolder = document.createElement('label')
+  				textHolder.htmlFor = 'option';
+  				textHolder.class = 'answerText'
+
+  				let optionText = document.createTextNode(answer);
+  				textHolder.appendChild(optionText);
+
+				let optionHolderLi = document.createElement('li');
+				optionHolderLi.appendChild(option);
+				optionHolderLi.appendChild(textHolder);
+
+				let optionHolderUl = document.getElementById('answerOptions');
+				optionHolderUl.appendChild(optionHolderLi);
+
+				//Number of answers
+				answerCount ++;
+			}
+
+			//Position footer
+			if (document.getElementById('answers').offsetHeight < 240){
+				document.getElementById('main-footer').style.position = "fixed";
+			}else{
+				document.getElementById('main-footer').style.position = "relative";
+			}
+		}
+
+		function buildAnswers(GeneralContent, QuestionContent, QuestionCategory){
+
+			//create correct answer
+			if (QuestionCategory == "nuclei"){
+				let possibleAnswers = QuestionContent.get("nuclei");
+				correctAnswerText = possibleAnswers[Math.floor(Math.random()*possibleAnswers.length)];
+			}else{
+				correctAnswerText = QuestionContent.get(QuestionCategory)
+			}
+			answerChoices.push(correctAnswerText)
+			console.log(correctAnswerText);
+
+			//Remove duplicate answers
+			generalAnswerContent = [...GeneralContent];
+			questionContent_index = generalAnswerContent.indexOf(QuestionContent);
+			generalAnswerContent.splice(questionContent_index, 1); // returns the array without the questionContent_index
+
+			for (let specificContent of generalAnswerContent){
+				if (specificContent.get(QuestionCategory) == correctAnswerText){
+					let specificContent_index = generalAnswerContent.indexOf(specificContent);
+					generalAnswerContent.splice(specificContent_index, 1);
+				}
+			}
+
+			//create wrong answers
+			for (i = 0; i < OPTIONS - 1; i++){
+
+				if (generalAnswerContent.length == 0){
+					break;
+				}
+
+				//get a specific content from the generalAnswerContent (f. ex. cn_II from cranial_nerves)
+				let specificContent = generalAnswerContent[Math.floor(Math.random()*generalAnswerContent.length)];
+				if (QuestionCategory == "nuclei"){
+					let possibleAnswers = specificContent.get("nuclei");
+					var wrongAnswerText = possibleAnswers[Math.floor(Math.random()*possibleAnswers.length)];
+				}else{
+					var wrongAnswerText = specificContent.get(QuestionCategory)
+				}
+				answerChoices.push(wrongAnswerText);
+
+				//Remove specificContent from generalAnswerContent
+				specificContent_index = generalAnswerContent.indexOf(specificContent);
+				generalAnswerContent.splice(specificContent_index, 1);
+
+				for (let specificContent of generalAnswerContent){
+					if (specificContent.get(QuestionCategory) == wrongAnswerText){
+						let specificContent_index = generalAnswerContent.indexOf(specificContent);
+						generalAnswerContent.splice(specificContent_index, 1);
+					}
+				}
+			}
+
+			shuffle(answerChoices);
+			showAnswers(answerChoices);
+		}
+
+		function buildQuestion(QuestionContent, QuestionCategory){
+
+			questionCount ++;
+
+			if (QuestionCategory == "name"){
+				var categoryText = cn_questions_text.get(QuestionCategory)+ QuestionContent.get("#")+";";
+			}else{
+				var categoryText = cn_questions_text.get(QuestionCategory) + QuestionContent.get("name")+" νεύρο"+";";
+			}
+
+			//Show the question
+			if (previousQuestions.has(categoryText)){
+				nextQuestion();
+			}else{
+				document.getElementById('questionText').innerHTML = categoryText;
+				document.getElementById('questionNumber').innerHTML = "Ερώτηση "+ questionCount+ "/"+ TOTAL_QUESTIONS +": ";
+				previousQuestions.add(categoryText);
+			}
+		}
+
+		function generateQuestion(){
+
+			//pick the question category
+			let randomCategory = question_categories[Math.floor(Math.random()*question_categories.length)];
+
+			//pick a random subcategory of randomCategory
+			let subcategories = randomCategory[0]
+			let randomSubcategory = subcategories[Math.floor(Math.random()*subcategories.length)];
+
+			//pick the content of the question
+			let allContent = randomCategory[1]
+			let randomContent = allContent[Math.floor(Math.random()*allContent.length)];
+
+			//create the text of the question
+			buildQuestion(randomContent, randomSubcategory);
+
+			//create the text of the answers
+			buildAnswers(allContent, randomContent, randomSubcategory);
+		}
+
+	</script>
+
+
+	<!--Developed by Konstantinos Vrettos -->
+
+</body>
+</html>
