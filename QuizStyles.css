@@ -18,6 +18,72 @@ body{
 	color: #fff;
 }
 
+#headerTitle{
+	float: left;
+	width: 70%;
+}
+
+#settings{
+	float: right;
+	width: 30%;
+	text-align: right;
+	margin-top: 0.83em;
+	margin-bottom: 0.83em;
+}
+
+#settings p{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.dropbtn{
+	background-image: url('../images/settings.png');
+	background-size: 30px 30px;
+    height: 30px;  
+    width: 30px;
+    background-color: coral;
+    border: none;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    text-align: center;
+}
+
+.dropdown-content {
+	display: none;
+	position: fixed;
+	right: 0;
+	margin-right: 10%;
+	background-color: #f4f4f4;
+	min-width: 160px;
+	color: #333;
+	border: 3px #333 solid;
+}
+
+.plus_btn {
+	margin-right: 30%;
+	width: 15%;
+}
+
+.minus_btn {
+	width: 15%;
+}
+
+#aNumber {
+	display: inline;
+}
+
+#qNumber {
+	display: inline;
+}
+
+#totalQuestions {
+	padding-bottom: 5px;
+	border-bottom: 3px #333 solid;
+}
+
+.show {display: block;}
+}
+
 #showcase {
 	background-color: #8cceff;
 }
