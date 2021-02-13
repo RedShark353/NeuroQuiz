@@ -239,36 +239,6 @@
 			return OPTIONS;
 		}
 
-		/*function setQuestions(change) {
-			if (TOTAL_QUESTIONS > 1 || TOTAL_QUESTIONS == 1 && change > 0) {
-				TOTAL_QUESTIONS += change;
-				document.getElementById('qNumber').innerHTML = TOTAL_QUESTIONS;
-			
-
-				if (change !== 0) {
-					questionCount --;
-					nextQuestion();
-				}
-			}
-
-			return TOTAL_QUESTIONS;
-		}
-
-		function setAnswers(change) {
-			if (OPTIONS > 1 || OPTIONS == 1 && change > 0) {
-				OPTIONS += change;
-				document.getElementById('aNumber').innerHTML = OPTIONS;
-			
-
-				if (change !== 0) {
-					questionCount --;
-					nextQuestion();
-				}
-			}
-
-			return OPTIONS;
-		}*/
-
 
 		function dropDown() {
 			document.getElementById('dropDown').classList.toggle("show");
@@ -419,10 +389,9 @@
 				let possibleAnswers = QuestionContent.get("nuclei");
 				correctAnswerText = possibleAnswers[Math.floor(Math.random()*possibleAnswers.length)];
 			}else{
-				correctAnswerText = QuestionContent.get(QuestionCategory)
+				correctAnswerText = QuestionContent.get(QuestionCategory);
 			}
-			answerChoices.push(correctAnswerText)
-			console.log(correctAnswerText);
+			answerChoices.push(correctAnswerText);
 
 			//Remove duplicate answers
 			generalAnswerContent = [...GeneralContent];
