@@ -37,7 +37,7 @@ body{
 }
 
 .dropbtn{
-	background-image: url('../images/settings.png');
+	background-image: url('settings.png');
 	background-size: 30px 30px;
     height: 30px;  
     width: 30px;
