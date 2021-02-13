@@ -8,7 +8,27 @@
 
 	<header id="main-header">
 		<div class="container">
-			<h1>NeuroQuiz</h1>
+			<section id="headerTitle">
+				<h1>NeuroQuiz</h1>
+			</section>
+
+			<section id="settings">
+				<button class="dropbtn" onclick="dropDown()"></button>
+				<div id="dropDown" class="dropdown-content">
+				    <div id="totalQuestions">
+				    	<p>Αριθμός Ερωτήσεων</p>
+				    	<button class="minus_btn" onclick="setQuestions(-1)">-</button>
+				    	<p id="qNumber">5</p>
+				    	<button class="plus_btn" onclick="setQuestions(1)">+</button>
+				    </div>
+				    <div id="totalAnswers">
+				    	<p>Αριθμός Απαντήσεων</p>
+				    	<button class="minus_btn" onclick="setAnswers(-1)">-</button>
+				    	<p id="aNumber">4</p>
+				    	<button class="plus_btn" onclick="setAnswers(1)">+</button>
+				    </div>
+			  </div>
+			</section>
 		</div>
 	</header>
 
@@ -196,7 +216,51 @@
 		var questionCount = 0;
 
 		generateQuestion()
+		
+		
+		function setQuestions(change) {
+			TOTAL_QUESTIONS += change;
+			document.getElementById('qNumber').innerHTML = TOTAL_QUESTIONS;
 
+			if (change !== 0) {
+				questionCount --;
+				nextQuestion();
+			}
+
+			return TOTAL_QUESTIONS;
+		}
+
+		function setAnswers(change) {
+			OPTIONS += change;
+			document.getElementById('aNumber').innerHTML = OPTIONS;
+
+			if (change !== 0) {
+				questionCount --;
+				nextQuestion();
+			}
+
+			return OPTIONS;
+		}
+
+
+		function dropDown() {
+			document.getElementById('dropDown').classList.toggle("show");
+		}
+
+		// Close the dropdown if the user clicks outside of it
+		window.onclick = function(event) {
+		  if (!event.target.matches('.dropbtn') && !event.target.matches('.plus_btn') && !event.target.matches('.minus_btn')) {
+		    var dropdowns = document.getElementsByClassName("dropdown-content");
+		    var i;
+		    for (i = 0; i < dropdowns.length; i++) {
+		      var openDropdown = dropdowns[i];
+		      if (openDropdown.classList.contains('show')) {
+		        openDropdown.classList.remove('show');
+		      }
+		    }
+		  }
+		}
+		
 		function newQuiz(){
 			location.href = "quiz.html";
 		}
